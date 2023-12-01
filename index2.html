@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 60px;
+  height: 120px;
+  background: #ccc;
+  border-radius: 10px;
+  box-shadow: 0 0 10px rgba(0,0,0,0.5); /* Agrega sombra alrededor del interruptor */
+  margin-right: 20px; /* Agrega separación a la derecha de los interruptores */
+}
+
+.switch input {
+  display: none;
+}
+
+.toggle {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  bottom: 5px;
+  left: 5px;
+  background: #f44336; /* Rojo cuando está apagado */
+  border-radius: 8px;
+  transition: .4s;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.3); /* Agrega sombra al botón del interruptor */
+}
+
+input:checked + .toggle {
+  transform: translateY(-60px);
+  background: #4CAF50; /* Verde cuando está encendido */
+}
+
+body {
+    background-color: #D2B48C;
+    background-image: url('tortuga-de-tierra.jpg');
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+.table-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 45%;
+    margin: 20px;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 200px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+table, th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+table th {
+    background-color: #333;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+table td {
+    color: #555;
+}
+table tr {
+    background-color: #f3f3f3;
+}
+table tr:nth-of-type(even) {
+    background-color: #f2f2f2;
+}
+.hiddenRow {
+    display: none;
+}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+$(document).ready(function(){
+  // Carga el estado de los interruptores desde la base de datos
+  $.getJSON("get_switch_state.php", function(data) {
+    $('input[type="checkbox"]').each(function(index) {
+      var switchState = data['switch' + (index + 1)]; // Asume que los IDs de los switches en la base de datos empiezan en 1
+      $(this).prop('checked', switchState === 0);
+    });
+  });
+
+  // Guarda el estado de los interruptores cuando se cambian
+  $('input[type="checkbox"]').click(function(){
+    var switchNumber = $(this).parent().parent().index();
+    var switchState = $(this).is(":checked") ? "on" : "off";
+    console.log('Switch number: ' + switchNumber);
+    console.log('Switch state: ' + switchState);
+
+    $.post("switch.php",
+    {
+      switchNumber: switchNumber + 1,
+      switchState: switchState
+    }, function(data, status) {
+      console.log('Data: ' + data + '\nStatus: ' + status);
+    });
+  });
+  
+  setInterval(function(){
+    // Ejecuta el primer archivo PHP
+    $.ajax({ 
+        url: 'tablamin.php', 
+        success: function(data) {
+            console.log('Archivo PHP 1 ejecutado con éxito');
+        },
+        error: function() {
+            console.log('Error al ejecutar el archivo PHP 1');
+        }
+    });
+
+    // Ejecuta el segundo archivo PHP
+    $.ajax({ 
+        url: 'tablahora.php', 
+        success: function(data) {
+            console.log('Archivo PHP 2 ejecutado con éxito');
+        },
+        error: function() {
+            console.log('Error al ejecutar el archivo PHP 2');
+        }
+    });
+}, 10000); // Ejecuta cada 10 segundos
+});
+</script>
+
+
+</head>
+<body>
+
+<div style="display: flex; justify-content: space-between; width: 200px;">
+  <div>
+    <h2>Luz 1</h2>
+    <label class="switch">
+      <input type="checkbox">
+      <div class="toggle"></div>
+    </label>
+  </div>
+
+  <div>
+    <h2>Luz 2</h2>
+    <label class="switch">
+      <input type="checkbox">
+      <div class="toggle"></div>
+    </label>
+  </div>
+</div>
+
+<div class="table-container">
+    <h2>Datos Medios por Hora</h2>
+
+    <table id="tabla_por_hora">
+      <tr>
+        <th>Hora</th>
+        <th>Temperatura</th>
+        <th>Humedad</th>
+        <th>Humo</th>
+      </tr>
+      <tr>
+        <td>1:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr>
+        <td>2:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr>
+        <td>3:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr>
+        <td>4:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      <tr class="hiddenRow">
+        <td>5:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>6:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>7:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>8:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>9:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>10:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>11:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>12:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>13:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>14:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>15:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>16:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>17:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>18:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>19:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>20:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>21:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>22:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>23:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr><tr class="hiddenRow">
+        <td>24:00</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+    </table>
+</div>
+
+<div class="table-container">
+    <h2>Últimas Actualizaciones de Datos</h2>
+
+    <table id="tabla_por_minuto">
+      <tr>
+        <th>Hora</th>
+        <th>Temperatura</th>
+        <th>Humedad</th>
+        <th>Humo</th>
+      </tr>
+      <tr>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr class="hiddenRow">
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+    </table>
+</div>
+
+<div class="table-container">
+    <h2>Datos Medios de la Última Semana</h2>
+
+    <table id="tabla_por_dia">
+      <tr>
+        <th>Día</th>
+        <th>Temperatura</th>
+        <th>Humedad</th>
+        <th>Humo</th>
+      </tr>
+      <tr>
+        <td>Lunes</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr>
+        <td>Martes</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr>
+        <td>Miércoles</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <!-- Las siguientes filas están ocultas inicialmente -->
+      <tr class="hiddenRow">
+        <td>Jueves</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr class="hiddenRow">
+        <td>Viernes</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr class="hiddenRow">
+        <td>Sábado</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+      <tr class="hiddenRow">
+        <td>Domingo</td>
+        <td>...</td>
+        <td>...</td>
+        <td>...</td>
+      </tr>
+    </table>
+</div>
+
+<script>
+$(document).ready(function(){
+  $.getJSON("basedata_conexion.php", function(data) {
+    $.each(data, function(tableId, rows) {
+      var table = $("#" + tableId);
+      var trs = table.find("tr");
+      $.each(rows, function(index, row) {
+        var tr = $("<tr></tr>");
+        $.each(row, function(key, val) {
+          tr.append($("<td></td>").text(val));
+        });
+        table.append(tr);
+        if (trs.length > 10) { // Ajusta este número al número máximo de filas que quieres mantener
+          $(trs[1]).remove(); // Elimina la fila más antigua (después del encabezado)
+        }
+      });
+    });
+  });
+});
+</script>
+
+<script>
+$(document).ready(function(){
+  setInterval(function(){ // Agrega esta línea
+    $.getJSON("basedata_conexion.php", function(data) {
+      $.each(data, function(tableId, rows) {
+        var table = $("#" + tableId);
+        var trs = table.find("tr");
+        $.each(rows, function(index, row) {
+          var tr = $(trs[index + 1]); // +1 para saltar la fila del encabezado
+          var tds = tr.find("td");
+          $.each(row, function(key, val) {
+            $(tds[key]).text(val);
+          });
+        });
+        addClickListener(tableId); // Agrega la funcionalidad de expandir y contraer a la tabla
+      });
+    });
+  }, 5000); // Ejecuta el código cada 5000 milisegundos (5 segundos)
+});
+</script>
+
+<script>
+    function addClickListener(tableId) {
+        var table = document.getElementById(tableId);
+        var rows = table.getElementsByTagName('tr');
+        var areRowsHidden = true;  // Variable de estado para rastrear si las filas están ocultas
+
+        for (var i = 0; i < rows.length; i++) {
+            rows[i].addEventListener('click', function(e) {
+                var hiddenRows = this.parentNode.getElementsByClassName('hiddenRow');
+                for (var j = 0; j < hiddenRows.length; j++) {
+                    if (areRowsHidden) {
+                        hiddenRows[j].style.display = 'table-row';  // Muestra las filas
+                    } else {
+                        hiddenRows[j].style.display = 'none';  // Oculta las filas
+                    }
+                }
+                areRowsHidden = !areRowsHidden;  // Invierte el estado de las filas
+            });
+        }
+    }
+
+    addClickListener('tabla_por_hora');
+    addClickListener('tabla_por_minuto');
+    addClickListener('tabla_por_dia');
+</script>
+
+</body>
+</html>
